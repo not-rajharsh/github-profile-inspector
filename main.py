@@ -2,6 +2,22 @@ import os
 import requests
 from dotenv import load_dotenv
 
+def get_response():
+    print()
+    user = input("Enter The Github Username: ")
+    url = "https://api.github.com/users/" + user
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 404:
+        print("Username dont exists... Try Again!")
+        get_response()
+    elif response.status_code == 403:
+        print("Too many requests. Rate Limit reached, Please Wait!")
+        get_response()
+    else:
+        return response.json()
+
 load_dotenv()
 
 token = os.getenv("KEY")
@@ -13,11 +29,7 @@ headers = {
 
 while True:
     try:
-        user = input("Enter The Github Username: ")
-        url = "https://api.github.com/users/" + user
-
-        response = requests.get(url, headers=headers)
-        data = response.json()
+        data = get_response()
 
         #print(data)
 
@@ -77,6 +89,8 @@ while True:
         for i in repos:
             print(i.get("name"))
 
-    except:
-        print("Error...")
+        print("=====================================================")
+
+    except KeyboardInterrupt:
+        print("Exiting the Inspector....")
         break
